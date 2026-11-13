@@ -26,7 +26,9 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [session, setSession] = useState<Session | null>(null);\n  const [studentProfile, setStudentProfile] = useState<{ full_name: string; grade: string | null; institution: string | null } | null>(null);\n  const [userRole, setUserRole] = useState<"student" | "teacher" | "admin">("student");
+  const [session, setSession] = useState<Session | null>(null);
+  const [studentProfile, setStudentProfile] = useState<{ full_name: string; grade: string | null; institution: string | null } | null>(null);
+  const [userRole, setUserRole] = useState<"student" | "teacher" | "admin">("student");
 
   useEffect(() => {
     if (!supabase) return;
