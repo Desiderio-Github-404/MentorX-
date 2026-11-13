@@ -109,6 +109,7 @@ export default function App() {
         if (authError) throw authError;
         setMessage("Sessão iniciada com sucesso.");
         setPassword("");
+        setAuthOpen(false);
       } else if (authMode === "reset") {
         const { error: authError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
           redirectTo: window.location.origin,
@@ -139,6 +140,58 @@ export default function App() {
       setAuthOpen(false);
     }
   };
+
+  if (session && !authOpen) {
+    const firstName = (studentProfile?.full_name || session.user.email || "Estudante").split(" ")[0];
+    const roleLabel = userRole === "admin" ? "Administrador" : userRole === "teacher" ? "Professor" : "Estudante";
+    return (
+      <div className={dark ? "app-shell dark" : "app-shell light"}>
+        <header className="dashboard-topbar">
+          <a className="brand" href="#" aria-label="MentorX início">MentorX</a>
+          <div className="dashboard-top-actions">
+            <span className="dashboard-role">{roleLabel}</span>
+            <button className="icon-button theme-toggle" onClick={() => setDark(!dark)} aria-label="Alternar tema">{dark ? <Sun size={18} /> : <Moon size={18} />}</button>
+            <button className="dashboard-logout" onClick={handleLogout}><LogOut size={16} /><span>Sair</span></button>
+          </div>
+        </header>
+        <main className="dashboard-main">
+          <aside className="dashboard-sidebar">
+            <span className="dashboard-nav-label">ESPAÇO DE APRENDIZAGEM</span>
+            <span className="dashboard-nav-item active"><LayoutDashboard size={17} /> Visão geral</span>
+            <span className="dashboard-nav-item disabled"><BookMarked size={17} /> Minhas disciplinas<small>Brevemente</small></span>
+            <span className="dashboard-nav-item disabled"><Library size={17} /> Biblioteca<small>Brevemente</small></span>
+            <span className="dashboard-nav-item disabled"><Users size={17} /> Comunidade<small>Brevemente</small></span>
+          </aside>
+          <section className="dashboard-content">
+            <div className="dashboard-welcome">
+              <div><span className="section-kicker">O TEU ESPAÇO MENTORX</span><h1>Olá, {firstName}.</h1><p>Bem-vindo à tua área de aprendizagem. O teu próximo nível começa aqui.</p></div>
+              <div className="dashboard-avatar">{firstName.charAt(0).toUpperCase()}</div>
+            </div>
+            <div className="dashboard-stat-grid">
+              <article className="dashboard-stat"><span className="dashboard-stat-icon"><BookOpen size={18} /></span><span className="dashboard-stat-label">Disciplinas activas</span><strong>0</strong><small>As tuas disciplinas aparecerão aqui</small></article>
+              <article className="dashboard-stat"><span className="dashboard-stat-icon"><Target size={18} /></span><span className="dashboard-stat-label">Progresso de aprendizagem</span><strong>0%</strong><small>Começa a estudar para acompanhar a evolução</small></article>
+              <article className="dashboard-stat"><span className="dashboard-stat-icon"><Clock3 size={18} /></span><span className="dashboard-stat-label">Tempo de estudo</span><strong>—</strong><small>O teu tempo será apresentado aqui</small></article>
+            </div>
+            <div className="dashboard-lower-grid">
+              <article className="dashboard-panel"><span className="section-kicker">PRIMEIROS PASSOS</span><h2>Começa a tua jornada</h2><p>Estamos a preparar as ferramentas para te ajudar a estudar com mais organização.</p>
+                <div className="dashboard-check-row"><span>01</span><div><strong>Conta criada</strong><small>O teu acesso à MentorX está activo.</small></div><b>Concluído</b></div>
+                <div className="dashboard-check-row"><span>02</span><div><strong>Completar perfil</strong><small>Confirma os teus dados académicos.</small></div><b>Pendente</b></div>
+                <div className="dashboard-check-row"><span>03</span><div><strong>Explorar conteúdos</strong><small>Em breve poderás aceder às disciplinas.</small></div><b>Brevemente</b></div>
+              </article>
+              <article className="dashboard-panel"><span className="section-kicker">A TUA CONTA</span><h2>Perfil do estudante</h2>
+                <div className="dashboard-profile-row"><span>Nome</span><strong>{studentProfile?.full_name || "Não definido"}</strong></div>
+                <div className="dashboard-profile-row"><span>E-mail</span><strong>{session.user.email || "—"}</strong></div>
+                <div className="dashboard-profile-row"><span>Classe</span><strong>{studentProfile?.grade || "Não definida"}</strong></div>
+                <div className="dashboard-profile-row"><span>Instituição</span><strong>{studentProfile?.institution || "Não definida"}</strong></div>
+                <small className="dashboard-profile-note">A edição do perfil será disponibilizada na próxima actualização.</small>
+              </article>
+            </div>
+            <p className="dashboard-bottom-note">© {new Date().getFullYear()} MentorX. Conhecimento que transforma.</p>
+          </section>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className={dark ? "app-shell dark" : "app-shell light"}>
