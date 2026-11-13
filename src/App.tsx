@@ -121,7 +121,7 @@ export default function App() {
   return (
     <div className={dark ? "app-shell dark" : "app-shell light"}>
       <header className="topbar">
-        <a className="brand" href="#" aria-label="MentorX início"><span className="brand-mark">M<span>.</span></span><span>Mentor<span className="brand-accent">X</span></span></a>
+        <a className="brand" href="#" aria-label="MentorX início">MentorX</a>
         <nav className={menuOpen ? "nav-links open" : "nav-links"}>
           <a href="#recursos" onClick={() => setMenuOpen(false)}>Recursos</a>
           <a href="#disciplinas" onClick={() => setMenuOpen(false)}>Disciplinas</a>
@@ -163,12 +163,12 @@ export default function App() {
         </section>
         <section className="closing-cta section-wrap"><div><span className="section-kicker">O TEU FUTURO COMEÇA COM UMA DECISÃO</span><h2>O próximo passo é teu.</h2><p>Constrói conhecimento. Desenvolve competências. Vai mais longe.</p></div><button className="button" onClick={() => openAuth("register")}>Começar agora <ArrowRight size={17} /></button></section>
       </main>
-      <footer className="footer"><a className="brand" href="#"><span className="brand-mark">M<span>.</span></span><span>Mentor<span className="brand-accent">X</span></span></a><span>© {new Date().getFullYear()} MentorX. Conhecimento que transforma.</span><span>Feito para aprender e evoluir.</span></footer>
+      <footer className="footer"><a className="brand" href="#" aria-label="MentorX início">MentorX</a><span>© {new Date().getFullYear()} MentorX. Conhecimento que transforma.</span><span>Feito para aprender e evoluir.</span></footer>
 
       {authOpen && <div className="auth-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setAuthOpen(false); }}>
         <section className="auth-panel" role="dialog" aria-modal="true" aria-labelledby="auth-title">
           <button className="auth-close icon-button" onClick={() => setAuthOpen(false)} aria-label="Fechar"><X size={20} /></button>
-          <div className="auth-brand"><span className="brand-mark">M<span>.</span></span><span>Mentor<span className="brand-accent">X</span></span></div>
+          <div className="auth-brand">MentorX</div>
           <span className="section-kicker">{authMode === "register" ? "JUNTA-TE À COMUNIDADE" : authMode === "reset" || authMode === "update" ? "RECUPERA O ACESSO" : "BEM-VINDO DE VOLTA"}</span>
           <h2 id="auth-title">{authMode === "register" ? "Cria a tua conta" : authMode === "reset" ? "Redefinir palavra-passe" : authMode === "update" ? "Criar nova palavra-passe" : "Entrar na MentorX"}</h2>
           <p className="auth-subtitle">{authMode === "register" ? "Começa gratuitamente a tua jornada de aprendizagem." : authMode === "reset" ? "Indica o teu e-mail para receberes as instruções." : authMode === "update" ? "Define uma nova palavra-passe para a tua conta." : "Acede ao teu espaço de aprendizagem."}</p>
