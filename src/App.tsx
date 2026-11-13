@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import {
   ArrowRight, BookOpen, Bot, GraduationCap, Library, LockKeyhole, Mail,
-  Menu, MessageCircle, Moon, Search, Sparkles, Sun, Users, UserRound, X,
+  Menu, MessageCircle, Moon, Search, Sparkles, Sun, Users, UserRound, X, LogOut, LayoutDashboard, BookMarked, Clock3, Target,
 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
@@ -26,7 +26,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<Session | null>(null);\n  const [studentProfile, setStudentProfile] = useState<{ full_name: string; grade: string | null; institution: string | null } | null>(null);\n  const [userRole, setUserRole] = useState<"student" | "teacher" | "admin">("student");
 
   useEffect(() => {
     if (!supabase) return;
@@ -50,6 +50,26 @@ export default function App() {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!session || !supabase) {
+      setStudentProfile(null);
+      setUserRole("student");
+      return;
+    }
+    let active = true;
+    const loadStudentData = async () => {
+      const [{ data: profileData }, { data: roleData }] = await Promise.all([
+        supabase.from("profiles").select("full_name, grade, institution").eq("id", session.user.id).maybeSingle(),
+        supabase.from("user_roles").select("role").eq("user_id", session.user.id).maybeSingle(),
+      ]);
+      if (!active) return;
+      setStudentProfile(profileData);
+      if (roleData?.role === "teacher" || roleData?.role === "admin" || roleData?.role === "student") setUserRole(roleData.role);
+    };
+    void loadStudentData();
+    return () => { active = false; };
+  }, [session]);
 
   const openAuth = (mode: AuthMode) => {
     setAuthMode(mode);
