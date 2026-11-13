@@ -1,4 +1,5 @@
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import {
   ArrowRight, BookOpen, Bot, GraduationCap, Library, LockKeyhole, Mail,
   Menu, MessageCircle, Moon, Search, Sparkles, Sun, Users, UserRound, X,
