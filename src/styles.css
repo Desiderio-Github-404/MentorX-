@@ -53,3 +53,75 @@ h1,h2,h3,p { margin-top: 0; }.hero h1 { font: 800 clamp(42px,5.3vw,68px)/1.08 Ma
 .auth-footnote { margin: 22px 0 0; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; line-height: 1.6; text-align: center; }
 .auth-logout { display: block; margin: 15px auto 0; font-size: 11px; }
 @media(max-width:800px) { .account-link { display: none; }.auth-panel { padding: 28px 22px; } }
+
+
+/* MentorX monochrome identity: black/white with inverted light theme */
+.app-shell {
+  --bg: #000000;
+  --surface: #0b0b0b;
+  --surface-2: #151515;
+  --text: #ffffff;
+  --muted: #b8b8b8;
+  --line: rgba(255,255,255,.14);
+  --accent: #ffffff;
+  --accent-2: #d8d8d8;
+  background: var(--bg);
+  color: var(--text);
+}
+.app-shell.light {
+  --bg: #ffffff;
+  --surface: #f7f7f7;
+  --surface-2: #eeeeee;
+  --text: #000000;
+  --muted: #555555;
+  --line: rgba(0,0,0,.14);
+  --accent: #000000;
+  --accent-2: #333333;
+}
+.brand,
+.auth-brand,
+.footer .brand {
+  color: var(--text);
+  font-family: Manrope, sans-serif;
+  font-weight: 900;
+  letter-spacing: -1.1px;
+}
+.brand { gap: 0; font-size: 23px; }
+.auth-brand { font-size: 24px; }
+.brand-accent { color: inherit; }
+.button {
+  background: var(--text);
+  color: var(--bg);
+  box-shadow: none;
+}
+.button:hover { filter: brightness(.88); }
+.app-shell.light .button:hover { filter: brightness(.9); }
+.hero h1 span,
+.section-heading h2 span {
+  background: none;
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+}
+.eyebrow {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--text);
+}
+.visual-glow { background: radial-gradient(circle,rgba(255,255,255,.09),transparent 68%); }
+.orbit { border-color: var(--line); }
+.study-symbol,
+.feature-icon,
+.proof-icon {
+  color: var(--text);
+  background: var(--surface-2);
+}
+.progress-track span { background: var(--text); }
+.live-dot { background: var(--text); box-shadow: 0 0 10px rgba(255,255,255,.5); }
+.feature-card:hover { border-color: var(--text); }
+.closing-cta {
+  border-color: var(--line);
+  background: var(--surface);
+}
+.auth-overlay { background: rgba(0,0,0,.78); }
+.auth-feedback.success { color: var(--text); background: rgba(255,255,255,.09); }
+.auth-feedback.error { color: #ffb4b4; }
