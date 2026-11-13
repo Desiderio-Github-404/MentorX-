@@ -13,7 +13,7 @@ const features = [
   { icon: Bot, title: "MentorX AI", description: "Um tutor inteligente para explicar conceitos, orientar exercícios e apoiar o teu estudo.", label: "Aprendizagem inteligente" },
 ];
 const subjects = ["Matemática", "Física", "Electrónica", "Informática", "Telecomunicações", "Química"];
-type AuthMode = "login" | "register" | "reset";
+type AuthMode = "login" | "register" | "reset" | "update";
 
 export default function App() {
   const [dark, setDark] = useState(true);
@@ -30,8 +30,24 @@ export default function App() {
 
   useEffect(() => {
     if (!supabase) return;
+    const recoveryLink = new URLSearchParams(window.location.hash.slice(1)).get("type") === "recovery";
+    if (recoveryLink) {
+      setAuthMode("update");
+      setAuthOpen(true);
+      setMessage("");
+      setError("");
+    }
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      setSession(nextSession);
+      if (event === "PASSWORD_RECOVERY") {
+        setAuthMode("update");
+        setAuthOpen(true);
+        setMessage("");
+        setError("");
+        setPassword("");
+      }
+    });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -71,12 +87,19 @@ export default function App() {
         if (authError) throw authError;
         setMessage("Sessão iniciada com sucesso.");
         setPassword("");
-      } else {
+      } else if (authMode === "reset") {
         const { error: authError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
           redirectTo: window.location.origin,
         });
         if (authError) throw authError;
         setMessage("Se existir uma conta associada a esse e-mail, receberás instruções para redefinir a palavra-passe.");
+      } else {
+        const { error: authError } = await supabase.auth.updateUser({ password });
+        if (authError) throw authError;
+        setMessage("Palavra-passe actualizada com sucesso. Já podes iniciar sessão com a nova palavra-passe.");
+        setAuthMode("login");
+        setPassword("");
+        window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível concluir a operação. Tenta novamente.");
@@ -146,22 +169,23 @@ export default function App() {
         <section className="auth-panel" role="dialog" aria-modal="true" aria-labelledby="auth-title">
           <button className="auth-close icon-button" onClick={() => setAuthOpen(false)} aria-label="Fechar"><X size={20} /></button>
           <div className="auth-brand"><span className="brand-mark">M<span>.</span></span><span>Mentor<span className="brand-accent">X</span></span></div>
-          <span className="section-kicker">{authMode === "register" ? "JUNTA-TE À COMUNIDADE" : authMode === "reset" ? "RECUPERA O ACESSO" : "BEM-VINDO DE VOLTA"}</span>
-          <h2 id="auth-title">{authMode === "register" ? "Cria a tua conta" : authMode === "reset" ? "Redefinir palavra-passe" : "Entrar na MentorX"}</h2>
-          <p className="auth-subtitle">{authMode === "register" ? "Começa gratuitamente a tua jornada de aprendizagem." : authMode === "reset" ? "Indica o teu e-mail para receberes as instruções." : "Acede ao teu espaço de aprendizagem."}</p>
+          <span className="section-kicker">{authMode === "register" ? "JUNTA-TE À COMUNIDADE" : authMode === "reset" || authMode === "update" ? "RECUPERA O ACESSO" : "BEM-VINDO DE VOLTA"}</span>
+          <h2 id="auth-title">{authMode === "register" ? "Cria a tua conta" : authMode === "reset" ? "Redefinir palavra-passe" : authMode === "update" ? "Criar nova palavra-passe" : "Entrar na MentorX"}</h2>
+          <p className="auth-subtitle">{authMode === "register" ? "Começa gratuitamente a tua jornada de aprendizagem." : authMode === "reset" ? "Indica o teu e-mail para receberes as instruções." : authMode === "update" ? "Define uma nova palavra-passe para a tua conta." : "Acede ao teu espaço de aprendizagem."}</p>
           {!isSupabaseConfigured && <div className="auth-notice">A ligação ao serviço de autenticação ainda não foi detectada nesta versão.</div>}
           <form className="auth-form" onSubmit={handleAuth}>
             {authMode === "register" && <label><span>Nome completo</span><div className="auth-input-wrap"><UserRound size={17} /><input autoComplete="name" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="O teu nome" /></div></label>}
             <label><span>E-mail</span><div className="auth-input-wrap"><Mail size={17} /><input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nome@exemplo.com" /></div></label>
-            {authMode !== "reset" && <label><span>Palavra-passe</span><div className="auth-input-wrap"><LockKeyhole size={17} /><input type="password" autoComplete={authMode === "register" ? "new-password" : "current-password"} minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" /></div></label>}
+            {(authMode === "register" || authMode === "login" || authMode === "update") && <label><span>{authMode === "update" ? "Nova palavra-passe" : "Palavra-passe"}</span><div className="auth-input-wrap"><LockKeyhole size={17} /><input type="password" autoComplete={authMode === "login" ? "current-password" : "new-password"} minLength={6} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" /></div></label>}
             {error && <p className="auth-feedback error" role="alert">{error}</p>}
             {message && <p className="auth-feedback success" role="status">{message}</p>}
-            <button className="button auth-submit" type="submit" disabled={busy}>{busy ? "A processar..." : authMode === "register" ? "Criar conta" : authMode === "reset" ? "Enviar instruções" : "Entrar"} <ArrowRight size={17} /></button>
+            <button className="button auth-submit" type="submit" disabled={busy}>{busy ? "A processar..." : authMode === "register" ? "Criar conta" : authMode === "reset" ? "Enviar instruções" : authMode === "update" ? "Guardar nova palavra-passe" : "Entrar"} <ArrowRight size={17} /></button>
           </form>
           <div className="auth-switches">
             {authMode === "login" && <><button onClick={() => openAuth("reset")}>Esqueci-me da palavra-passe</button><p>Ainda não tens conta? <button onClick={() => openAuth("register")}>Criar conta</button></p></>}
             {authMode === "register" && <p>Já tens conta? <button onClick={() => openAuth("login")}>Iniciar sessão</button></p>}
             {authMode === "reset" && <p>Lembraste da palavra-passe? <button onClick={() => openAuth("login")}>Voltar ao login</button></p>}
+            {authMode === "update" && <p>Define a nova palavra-passe para continuares.</p>}
           </div>
           {session && <button className="auth-logout" onClick={handleLogout}>Terminar sessão ({session.user.email})</button>}
           <p className="auth-footnote">Ao criares uma conta, serás registado como estudante. Outros papéis são atribuídos pela administração.</p>
