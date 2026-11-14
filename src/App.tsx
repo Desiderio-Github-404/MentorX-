@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
+import MaterialsManager from "./components/MaterialsManager";
 
 const features = [
   { icon: Library, title: "Biblioteca académica", description: "Solucionários, slides, resumos e materiais de apoio organizados por classe e disciplina.", label: "Aprende ao teu ritmo" },
@@ -35,7 +36,7 @@ export default function App() {
   const [profileInstitution, setProfileInstitution] = useState("");
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileFeedback, setProfileFeedback] = useState("");
-  const [activeDashboardView, setActiveDashboardView] = useState<"overview" | "subjects" | "my-subjects">("overview");
+  const [activeDashboardView, setActiveDashboardView] = useState<"overview" | "subjects" | "my-subjects" | "materials">("overview");
   const [availableSubjects, setAvailableSubjects] = useState<Array<{ id: string; name: string; slug: string; description: string; level: string }>>([]);
   const [enrolledSubjectIds, setEnrolledSubjectIds] = useState<string[]>([]);
   const [subjectsLoading, setSubjectsLoading] = useState(false);
@@ -243,11 +244,12 @@ export default function App() {
             <button className={`dashboard-nav-item ${activeDashboardView === "overview" ? "active" : ""}`} onClick={() => setActiveDashboardView("overview")}><LayoutDashboard size={17} /> Visão geral</button>
             <button className={`dashboard-nav-item ${activeDashboardView === "my-subjects" ? "active" : ""}`} onClick={() => setActiveDashboardView("my-subjects")}><BookMarked size={17} /> Minhas disciplinas</button>
             <button className={`dashboard-nav-item ${activeDashboardView === "subjects" ? "active" : ""}`} onClick={() => setActiveDashboardView("subjects")}><BookOpen size={17} /> Catálogo de disciplinas</button>
+            {(userRole === "admin" || userRole === "teacher") && <button className={`dashboard-nav-item ${activeDashboardView === "materials" ? "active" : ""}`} onClick={() => setActiveDashboardView("materials")}><Library size={17} /> Gestão de materiais</button>}
             <span className="dashboard-nav-item disabled"><Library size={17} /> Biblioteca<small>Brevemente</small></span>
             <span className="dashboard-nav-item disabled"><Users size={17} /> Comunidade<small>Brevemente</small></span>
           </aside>
           <section className="dashboard-content">
-            {activeDashboardView !== "overview" ? (
+            {activeDashboardView === "materials" ? (supabase ? <MaterialsManager client={supabase} userId={session.user.id} /> : null) : activeDashboardView !== "overview" ? (
               <>
                 <div className="dashboard-welcome">
                   <div><span className="section-kicker">ÁREA ACADÉMICA</span><h1>{activeDashboardView === "subjects" ? "Catálogo de disciplinas" : "As minhas disciplinas"}</h1><p>{activeDashboardView === "subjects" ? "Descobre as áreas de estudo e inscreve-te nas disciplinas." : "Aqui encontras todas as disciplinas em que estás inscrito."}</p></div>
