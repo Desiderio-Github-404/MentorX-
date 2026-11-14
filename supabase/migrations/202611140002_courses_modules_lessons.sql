@@ -159,7 +159,16 @@ using (
         and c.is_published
     )
   )
-  or is_preview
+  or (
+    is_preview
+    and exists (
+      select 1
+      from public.course_modules m
+      join public.courses c on c.id = m.course_id
+      where m.id = module_id
+        and c.is_published
+    )
+  )
   or public.has_role('teacher')
   or public.has_role('admin')
 );
