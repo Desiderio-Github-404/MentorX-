@@ -189,3 +189,15 @@ h1,h2,h3,p { margin-top: 0; }.hero h1 { font: 800 clamp(42px,5.3vw,68px)/1.08 Ma
   .dashboard-role { display: none; }
   .dashboard-logout span { display: none; }
 }
+
+
+/* Student profile editor */
+.profile-edit-button,.profile-cancel { margin-top: 16px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 13px; background: var(--surface-2); color: var(--text); font-size: 11px; font-weight: 700; }
+.profile-edit-form { display: grid; gap: 12px; margin-top: 18px; }
+.profile-edit-form label { display: grid; gap: 7px; color: var(--muted); font-size: 10px; font-weight: 700; }
+.profile-edit-form input { width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; padding: 11px; background: var(--bg); color: var(--text); font: inherit; font-size: 12px; }
+.profile-edit-form input:focus { outline: 1px solid var(--text); }
+.profile-edit-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
+.profile-save { margin-top: 4px; border: 0; font-size: 11px; }
+.profile-cancel { margin-top: 4px; }
+.profile-feedback { margin-top: 12px; color: var(--muted); font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
