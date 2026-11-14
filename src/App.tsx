@@ -35,6 +35,12 @@ export default function App() {
   const [profileInstitution, setProfileInstitution] = useState("");
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileFeedback, setProfileFeedback] = useState("");
+  const [activeDashboardView, setActiveDashboardView] = useState<"overview" | "subjects" | "my-subjects">("overview");
+  const [availableSubjects, setAvailableSubjects] = useState<Array<{ id: string; name: string; slug: string; description: string; level: string }>>([]);
+  const [enrolledSubjectIds, setEnrolledSubjectIds] = useState<string[]>([]);
+  const [subjectsLoading, setSubjectsLoading] = useState(false);
+  const [enrollmentBusy, setEnrollmentBusy] = useState<string | null>(null);
+  const [subjectsFeedback, setSubjectsFeedback] = useState("");
 
   useEffect(() => {
     if (!supabase) return;
@@ -82,6 +88,45 @@ export default function App() {
     void loadStudentData();
     return () => { active = false; };
   }, [session]);
+
+  useEffect(() => {
+    if (!session || !supabase) {
+      setAvailableSubjects([]);
+      setEnrolledSubjectIds([]);
+      return;
+    }
+    const client = supabase;
+    let active = true;
+    const loadSubjects = async () => {
+      setSubjectsLoading(true);
+      const [{ data: subjectRows, error: subjectError }, { data: enrollmentRows, error: enrollmentError }] = await Promise.all([
+        client.from("subjects").select("id, name, slug, description, level").eq("is_active", true).order("name"),
+        client.from("enrollments").select("subject_id").eq("user_id", session.user.id).eq("status", "active"),
+      ]);
+      if (!active) return;
+      if (subjectError) setSubjectsFeedback(subjectError.message);
+      else setAvailableSubjects(subjectRows || []);
+      if (enrollmentError) setSubjectsFeedback(enrollmentError.message);
+      else setEnrolledSubjectIds((enrollmentRows || []).map((row) => row.subject_id));
+      setSubjectsLoading(false);
+    };
+    void loadSubjects();
+    return () => { active = false; };
+  }, [session]);
+
+  const enrollInSubject = async (subjectId: string) => {
+    if (!supabase || !session) return;
+    setEnrollmentBusy(subjectId);
+    setSubjectsFeedback("");
+    const { error: enrollmentError } = await supabase.from("enrollments").insert({ user_id: session.user.id, subject_id: subjectId, status: "active" });
+    if (enrollmentError) {
+      setSubjectsFeedback(enrollmentError.code === "23505" ? "Já estás inscrito nesta disciplina." : enrollmentError.message);
+    } else {
+      setEnrolledSubjectIds((current) => [...current, subjectId]);
+      setSubjectsFeedback("Matrícula realizada com sucesso. A disciplina já está na tua área.");
+    }
+    setEnrollmentBusy(null);
+  };
 
   const openAuth = (mode: AuthMode) => {
     setAuthMode(mode);
@@ -195,12 +240,41 @@ export default function App() {
         <main className="dashboard-main">
           <aside className="dashboard-sidebar">
             <span className="dashboard-nav-label">ESPAÇO DE APRENDIZAGEM</span>
-            <span className="dashboard-nav-item active"><LayoutDashboard size={17} /> Visão geral</span>
-            <span className="dashboard-nav-item disabled"><BookMarked size={17} /> Minhas disciplinas<small>Brevemente</small></span>
+            <button className={`dashboard-nav-item ${activeDashboardView === "overview" ? "active" : ""}`} onClick={() => setActiveDashboardView("overview")}><LayoutDashboard size={17} /> Visão geral</button>
+            <button className={`dashboard-nav-item ${activeDashboardView === "my-subjects" ? "active" : ""}`} onClick={() => setActiveDashboardView("my-subjects")}><BookMarked size={17} /> Minhas disciplinas</button>
             <span className="dashboard-nav-item disabled"><Library size={17} /> Biblioteca<small>Brevemente</small></span>
             <span className="dashboard-nav-item disabled"><Users size={17} /> Comunidade<small>Brevemente</small></span>
           </aside>
           <section className="dashboard-content">
+            {activeDashboardView !== "overview" ? (
+              <>
+                <div className="dashboard-welcome">
+                  <div><span className="section-kicker">ÁREA ACADÉMICA</span><h1>{activeDashboardView === "subjects" ? "Catálogo de disciplinas" : "As minhas disciplinas"}</h1><p>{activeDashboardView === "subjects" ? "Descobre as áreas de estudo e inscreve-te nas disciplinas." : "Aqui encontras todas as disciplinas em que estás inscrito."}</p></div>
+                  <div className="dashboard-avatar"><BookMarked size={23} /></div>
+                </div>
+                <div className="subject-dashboard-toolbar">
+                  <button className={`subject-tab ${activeDashboardView === "subjects" ? "selected" : ""}`} onClick={() => { setActiveDashboardView("subjects"); setSubjectsFeedback(""); }}>Explorar catálogo</button>
+                  <button className={`subject-tab ${activeDashboardView === "my-subjects" ? "selected" : ""}`} onClick={() => { setActiveDashboardView("my-subjects"); setSubjectsFeedback(""); }}>Minhas inscrições ({enrolledSubjectIds.length})</button>
+                </div>
+                {subjectsFeedback && <p className="subjects-feedback" role="status">{subjectsFeedback}</p>}
+                {subjectsLoading ? <div className="subjects-empty">A carregar disciplinas...</div> : (
+                  <div className="subject-dashboard-grid">
+                    {(activeDashboardView === "subjects" ? availableSubjects : availableSubjects.filter((subject) => enrolledSubjectIds.includes(subject.id))).map((subject) => {
+                      const enrolled = enrolledSubjectIds.includes(subject.id);
+                      return <article className="subject-dashboard-card" key={subject.id}>
+                        <span className="subject-card-level">{subject.level}</span>
+                        <div className="subject-card-icon"><BookOpen size={21} /></div>
+                        <h2>{subject.name}</h2>
+                        <p>{subject.description}</p>
+                        {activeDashboardView === "subjects" ? <button className="button subject-enroll-button" disabled={enrolled || enrollmentBusy === subject.id} onClick={() => enrollInSubject(subject.id)}>{enrollmentBusy === subject.id ? "A inscrever..." : enrolled ? "Já inscrito" : "Inscrever-me"} <ArrowRight size={15} /></button> : <span className="subject-enrolled-label">Inscrição activa</span>}
+                      </article>;
+                    })}
+                  </div>
+                )}
+                {!subjectsLoading && activeDashboardView === "my-subjects" && enrolledSubjectIds.length === 0 && <div className="subjects-empty">Ainda não tens inscrições. Explora o catálogo para escolheres as tuas disciplinas.</div>}
+                {!subjectsLoading && activeDashboardView === "subjects" && availableSubjects.length === 0 && <div className="subjects-empty">Ainda não existem disciplinas disponíveis.</div>}
+              </>
+            ) : <>
             <div className="dashboard-welcome">
               <div><span className="section-kicker">O TEU ESPAÇO MENTORX</span><h1>Olá, {firstName}.</h1><p>Bem-vindo à tua área de aprendizagem. O teu próximo nível começa aqui.</p></div>
               <div className="dashboard-avatar">{firstName.charAt(0).toUpperCase()}</div>
@@ -236,6 +310,7 @@ export default function App() {
               </article>
             </div>
             <p className="dashboard-bottom-note">© {new Date().getFullYear()} MentorX. Conhecimento que transforma.</p>
+            </>}
           </section>
         </main>
       </div>
