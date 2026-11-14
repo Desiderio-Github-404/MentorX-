@@ -108,16 +108,16 @@ on public.courses for select
 to authenticated
 using (
   (is_published and public.is_enrolled_in_subject(subject_id))
-  or public.has_role('Teacher')
-  or public.has_role('Admin')
+  or public.has_role('teacher')
+  or public.has_role('admin')
 );
 
 drop policy if exists "Teachers and admins can manage courses" on public.courses;
 create policy "Teachers and admins can manage courses"
 on public.courses for all
 to authenticated
-using (public.has_role('Teacher') or public.has_role('Admin'))
-with check (public.has_role('Teacher') or public.has_role('Admin'));
+using (public.has_role('teacher') or public.has_role('admin'))
+with check (public.has_role('teacher') or public.has_role('admin'));
 
 drop policy if exists "Students and staff can read accessible modules" on public.course_modules;
 create policy "Students and staff can read accessible modules"
@@ -130,8 +130,8 @@ using (
     where c.id = course_id
       and (
         (c.is_published and public.is_enrolled_in_subject(c.subject_id))
-        or public.has_role('Teacher')
-        or public.has_role('Admin')
+        or public.has_role('teacher')
+        or public.has_role('admin')
       )
   )
 );
@@ -140,8 +140,8 @@ drop policy if exists "Teachers and admins can manage modules" on public.course_
 create policy "Teachers and admins can manage modules"
 on public.course_modules for all
 to authenticated
-using (public.has_role('Teacher') or public.has_role('Admin'))
-with check (public.has_role('Teacher') or public.has_role('Admin'));
+using (public.has_role('teacher') or public.has_role('admin'))
+with check (public.has_role('teacher') or public.has_role('admin'));
 
 drop policy if exists "Students and staff can read accessible lessons" on public.lessons;
 create policy "Students and staff can read accessible lessons"
@@ -169,22 +169,22 @@ using (
         and c.is_published
     )
   )
-  or public.has_role('Teacher')
-  or public.has_role('Admin')
+  or public.has_role('teacher')
+  or public.has_role('admin')
 );
 
 drop policy if exists "Teachers and admins can manage lessons" on public.lessons;
 create policy "Teachers and admins can manage lessons"
 on public.lessons for all
 to authenticated
-using (public.has_role('Teacher') or public.has_role('Admin'))
-with check (public.has_role('Teacher') or public.has_role('Admin'));
+using (public.has_role('teacher') or public.has_role('admin'))
+with check (public.has_role('teacher') or public.has_role('admin'));
 
 drop policy if exists "Students can read own lesson progress" on public.lesson_progress;
 create policy "Students can read own lesson progress"
 on public.lesson_progress for select
 to authenticated
-using (user_id = auth.uid() or public.has_role('Teacher') or public.has_role('Admin'));
+using (user_id = auth.uid() or public.has_role('teacher') or public.has_role('admin'));
 
 drop policy if exists "Students can create own lesson progress" on public.lesson_progress;
 create policy "Students can create own lesson progress"
