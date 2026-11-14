@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import { FileUp, FileText, Download, RefreshCw } from "lucide-react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -60,7 +61,7 @@ export default function MaterialsManager({ client, userId }: { client: SupabaseC
 
   useEffect(() => { void loadMaterials(); }, [lessonId]);
 
-  const uploadMaterial = async (event: React.FormEvent<HTMLFormElement>) => {
+  const uploadMaterial = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!file || !lessonId) return;
     if (file.size > 50 * 1024 * 1024) {
