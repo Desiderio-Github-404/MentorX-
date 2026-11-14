@@ -227,3 +227,25 @@ h1,h2,h3,p { margin-top: 0; }.hero h1 { font: 800 clamp(42px,5.3vw,68px)/1.08 Ma
 .subjects-feedback { margin: 0 0 17px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; color: var(--text); background: var(--surface-2); font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
 .subjects-empty { margin-top: 14px; padding: 28px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; font-size: 12px; line-height: 1.7; }
 @media(max-width:620px) { .subject-dashboard-grid { grid-template-columns: 1fr; }.subject-dashboard-card { padding: 19px; } }
+
+
+/* Private lesson materials manager */
+.materials-manager { display: grid; gap: 18px; }
+.materials-panel { margin: 0; }
+.materials-select-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; margin-top: 18px; }
+.materials-select-grid label,.materials-upload-form label { display: grid; gap: 8px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.materials-select-grid select,.materials-upload-form input[type=file] { width: 100%; min-width: 0; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: var(--bg); color: var(--text); font: inherit; font-size: 12px; }
+.materials-select-grid select:disabled { opacity: .5; }
+.materials-upload-form { display: grid; gap: 12px; margin-top: 18px; }
+.materials-upload-form small { color: var(--muted); font-size: 10px; }
+.materials-upload-form .button { justify-self: start; display: inline-flex; align-items: center; gap: 8px; border: 0; }
+.materials-upload-form .button:disabled { opacity: .5; cursor: not-allowed; }
+.materials-list-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.materials-list-heading h2 { margin: 7px 0 0; font: 800 19px Manrope,sans-serif; }
+.materials-list-heading .profile-edit-button,.material-row .profile-edit-button { display: inline-flex; align-items: center; gap: 7px; margin: 0; cursor: pointer; }
+.material-row { display: flex; align-items: center; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--line); color: var(--text); }
+.material-row:last-child { border-bottom: 0; }
+.material-row > div { flex: 1; min-width: 0; display: grid; gap: 5px; }
+.material-row strong { overflow-wrap: anywhere; font-size: 12px; }
+.material-row small { color: var(--muted); font-size: 10px; }
+@media(max-width:700px) { .materials-select-grid { grid-template-columns: 1fr; } .materials-list-heading { align-items: flex-start; } .material-row { flex-wrap: wrap; } }
