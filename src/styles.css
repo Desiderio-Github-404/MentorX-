@@ -201,3 +201,29 @@ h1,h2,h3,p { margin-top: 0; }.hero h1 { font: 800 clamp(42px,5.3vw,68px)/1.08 Ma
 .profile-save { margin-top: 4px; border: 0; font-size: 11px; }
 .profile-cancel { margin-top: 4px; }
 .profile-feedback { margin-top: 12px; color: var(--muted); font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+
+
+/* Subject catalog and student enrollments */
+.dashboard-nav-item {
+  border: 0;
+  width: calc(100% - 14px);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.subject-dashboard-toolbar { display: flex; flex-wrap: wrap; gap: 9px; margin: 0 0 20px; }
+.subject-tab { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; background: var(--surface); color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer; }
+.subject-tab.selected { background: var(--text); color: var(--bg); border-color: var(--text); }
+.subject-dashboard-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 15px; }
+.subject-dashboard-card { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; padding: 22px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); }
+.subject-card-level { color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; }
+.subject-card-icon { width: 42px; height: 42px; display: grid; place-items: center; margin: 18px 0 10px; border-radius: 10px; background: var(--surface-2); color: var(--text); }
+.subject-dashboard-card h2 { margin: 5px 0 8px; font: 800 18px Manrope,sans-serif; }
+.subject-dashboard-card p { flex: 1; margin: 0 0 18px; color: var(--muted); font-size: 11px; line-height: 1.7; }
+.subject-enroll-button { display: inline-flex; align-items: center; gap: 9px; border: 0; font-size: 11px; }
+.subject-enroll-button:disabled { opacity: .55; cursor: default; }
+.subject-enrolled-label { color: var(--muted); font-size: 10px; font-weight: 700; }
+.subjects-feedback { margin: 0 0 17px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 9px; color: var(--text); background: var(--surface-2); font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
+.subjects-empty { margin-top: 14px; padding: 28px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; font-size: 12px; line-height: 1.7; }
+@media(max-width:620px) { .subject-dashboard-grid { grid-template-columns: 1fr; }.subject-dashboard-card { padding: 19px; } }
