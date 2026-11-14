@@ -29,6 +29,12 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [studentProfile, setStudentProfile] = useState<{ full_name: string; grade: string | null; institution: string | null } | null>(null);
   const [userRole, setUserRole] = useState<"student" | "teacher" | "admin">("student");
+  const [profileEditing, setProfileEditing] = useState(false);
+  const [profileName, setProfileName] = useState("");
+  const [profileGrade, setProfileGrade] = useState("");
+  const [profileInstitution, setProfileInstitution] = useState("");
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileFeedback, setProfileFeedback] = useState("");
 
   useEffect(() => {
     if (!supabase) return;
@@ -68,6 +74,9 @@ export default function App() {
       ]);
       if (!active) return;
       setStudentProfile(profileData);
+      setProfileName(profileData?.full_name || "");
+      setProfileGrade(profileData?.grade || "");
+      setProfileInstitution(profileData?.institution || "");
       if (roleData?.role === "teacher" || roleData?.role === "admin" || roleData?.role === "student") setUserRole(roleData.role);
     };
     void loadStudentData();
@@ -132,6 +141,34 @@ export default function App() {
     }
   };
 
+  const saveProfile = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!supabase || !session) return;
+    setProfileSaving(true);
+    setProfileFeedback("");
+    try {
+      const { data, error: saveError } = await supabase
+        .from("profiles")
+        .update({
+          full_name: profileName.trim(),
+          grade: profileGrade.trim() || null,
+          institution: profileInstitution.trim() || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", session.user.id)
+        .select("full_name, grade, institution")
+        .single();
+      if (saveError) throw saveError;
+      setStudentProfile(data);
+      setProfileEditing(false);
+      setProfileFeedback("Perfil actualizado com sucesso.");
+    } catch (err) {
+      setProfileFeedback(err instanceof Error ? err.message : "Não foi possível guardar o perfil.");
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
   const handleLogout = async () => {
     if (!supabase) return;
     const { error: authError } = await supabase.auth.signOut();
@@ -184,7 +221,18 @@ export default function App() {
                 <div className="dashboard-profile-row"><span>E-mail</span><strong>{session.user.email || "—"}</strong></div>
                 <div className="dashboard-profile-row"><span>Classe</span><strong>{studentProfile?.grade || "Não definida"}</strong></div>
                 <div className="dashboard-profile-row"><span>Instituição</span><strong>{studentProfile?.institution || "Não definida"}</strong></div>
-                <small className="dashboard-profile-note">A edição do perfil será disponibilizada na próxima actualização.</small>
+                {profileEditing ? (
+                  <form className="profile-edit-form" onSubmit={saveProfile}>
+                    <label>Nome completo<input required maxLength={120} value={profileName} onChange={(e) => setProfileName(e.target.value)} /></label>
+                    <label>Classe<input maxLength={60} value={profileGrade} onChange={(e) => setProfileGrade(e.target.value)} placeholder="Ex.: 12.ª classe" /></label>
+                    <label>Instituição de ensino<input maxLength={120} value={profileInstitution} onChange={(e) => setProfileInstitution(e.target.value)} placeholder="Nome da escola" /></label>
+                    <div className="profile-edit-actions">
+                      <button className="button profile-save" type="submit" disabled={profileSaving}>{profileSaving ? "A guardar..." : "Guardar alterações"}</button>
+                      <button className="profile-cancel" type="button" onClick={() => setProfileEditing(false)}>Cancelar</button>
+                    </div>
+                  </form>
+                ) : <button className="profile-edit-button" onClick={() => { setProfileFeedback(""); setProfileEditing(true); }}>Editar perfil</button>}
+                {profileFeedback && <p className="profile-feedback" role="status">{profileFeedback}</p>}
               </article>
             </div>
             <p className="dashboard-bottom-note">© {new Date().getFullYear()} MentorX. Conhecimento que transforma.</p>
