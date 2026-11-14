@@ -59,11 +59,12 @@ export default function App() {
       setUserRole("student");
       return;
     }
+    const client = supabase;
     let active = true;
     const loadStudentData = async () => {
       const [{ data: profileData }, { data: roleData }] = await Promise.all([
-        supabase.from("profiles").select("full_name, grade, institution").eq("id", session.user.id).maybeSingle(),
-        supabase.from("user_roles").select("role").eq("user_id", session.user.id).maybeSingle(),
+        client.from("profiles").select("full_name, grade, institution").eq("id", session.user.id).maybeSingle(),
+        client.from("user_roles").select("role").eq("user_id", session.user.id).maybeSingle(),
       ]);
       if (!active) return;
       setStudentProfile(profileData);
