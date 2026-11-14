@@ -242,6 +242,7 @@ export default function App() {
             <span className="dashboard-nav-label">ESPAÇO DE APRENDIZAGEM</span>
             <button className={`dashboard-nav-item ${activeDashboardView === "overview" ? "active" : ""}`} onClick={() => setActiveDashboardView("overview")}><LayoutDashboard size={17} /> Visão geral</button>
             <button className={`dashboard-nav-item ${activeDashboardView === "my-subjects" ? "active" : ""}`} onClick={() => setActiveDashboardView("my-subjects")}><BookMarked size={17} /> Minhas disciplinas</button>
+            <button className={`dashboard-nav-item ${activeDashboardView === "subjects" ? "active" : ""}`} onClick={() => setActiveDashboardView("subjects")}><BookOpen size={17} /> Catálogo de disciplinas</button>
             <span className="dashboard-nav-item disabled"><Library size={17} /> Biblioteca<small>Brevemente</small></span>
             <span className="dashboard-nav-item disabled"><Users size={17} /> Comunidade<small>Brevemente</small></span>
           </aside>
@@ -280,7 +281,7 @@ export default function App() {
               <div className="dashboard-avatar">{firstName.charAt(0).toUpperCase()}</div>
             </div>
             <div className="dashboard-stat-grid">
-              <article className="dashboard-stat"><span className="dashboard-stat-icon"><BookOpen size={18} /></span><span className="dashboard-stat-label">Disciplinas activas</span><strong>0</strong><small>As tuas disciplinas aparecerão aqui</small></article>
+              <article className="dashboard-stat"><span className="dashboard-stat-icon"><BookOpen size={18} /></span><span className="dashboard-stat-label">Disciplinas activas</span><strong>{enrolledSubjectIds.length}</strong><small>{enrolledSubjectIds.length === 1 ? "Disciplina inscrita" : "Disciplinas inscritas"}</small></article>
               <article className="dashboard-stat"><span className="dashboard-stat-icon"><Target size={18} /></span><span className="dashboard-stat-label">Progresso de aprendizagem</span><strong>0%</strong><small>Começa a estudar para acompanhar a evolução</small></article>
               <article className="dashboard-stat"><span className="dashboard-stat-icon"><Clock3 size={18} /></span><span className="dashboard-stat-label">Tempo de estudo</span><strong>—</strong><small>O teu tempo será apresentado aqui</small></article>
             </div>
